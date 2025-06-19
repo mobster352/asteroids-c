@@ -1,2 +1,2 @@
-# Test Game
-A test game
+# Asteroids
+Asteroids in C

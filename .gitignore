@@ -404,3 +404,4 @@ Makefile
 .vscode
 build/
 build-*
+test/

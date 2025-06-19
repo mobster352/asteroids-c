@@ -8,6 +8,7 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 */
 
 #include "raylib.h"
+#include "raymath.h"
 
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
@@ -16,6 +17,19 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "stdlib.h"
 
 #include "custom_functions.h"
+#include "player.h"
+
+// void createPlayer(Player *p){
+// 	const int playerRadius = 20;
+// 	CircleShape shape = {
+// 		{500, 500}, playerRadius, WHITE, {0, 0}
+// 	};
+
+// 	p->shape = shape;
+// 	p->rotation = 0.0;
+// 	// printf("player.position: {%.2f, %.2f}\n", p->shape.position.x, p->shape.position.y);
+// 	// printf("player.rotation: %.2f\n", p->rotation);
+// }
 
 int main (){
 	// Tell the window to use vsync and work on high DPI displays
@@ -36,6 +50,11 @@ int main (){
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
 
 	SetTargetFPS(120);
+
+	Player player;
+	createPlayer(&player);
+	// printf("player.position: {%.2f, %.2f}\n", player.shape.position.x, player.shape.position.y);
+	// printf("player.rotation: %.2f\n", player.rotation);
 	
 	bool run = true;
 	// game loop
@@ -51,15 +70,18 @@ int main (){
 		ClearBackground(BLACK);
 
 		// draw some text using the default font
-		const char *text = "Value:";
-		int value = 250;
-		
-		const char *newText = concatIntToString(text, value);
-
-		DrawText(newText, 10,10,20,WHITE);
+		// const char *text = "Value:";
+		// int value = 250;
+		// const char *newText = concatIntToString(text, value);
+		// DrawText(newText, 10,10,20,WHITE);
 
 		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
+		//DrawTexture(wabbit, 400, 200, WHITE);
+
+		updatePlayer(&player);
+		drawPlayer(player);
+
+		// run = false;
 		
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
