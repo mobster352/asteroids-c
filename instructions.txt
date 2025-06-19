@@ -25,7 +25,8 @@ git remote add origin <new_remote_url>
 3. cd into the game directory
 4. run git remote remove origin
 5. run git remote add origin <new_remote_url>
-6. git add / commit / push to the new repo
+6. update .gitignore to include extra directories not related to game assets (.vscode, build/, include/, build-*)
+7. git add / commit / push to the new repo
 
 /* Instructions to build a Linux game */
 1. In build/: ./premake5 gmake2 --it may download some library files
