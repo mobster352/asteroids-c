@@ -1,0 +1,19 @@
+/* this compiles the c program to an executable linux file -- run this in the root folder directory*/
+gcc test.c -o test
+
+/* cd into build/ folder -- this command generates the makefiles -- targets linux (since it is the working env) */
+./premake5 gmake2
+
+/* this command targets windows */
+./premake5 gmake2 --os=windows
+
+/* navigate to root folder -- generates the linux executable file */
+make
+
+/* generates the windows exe file using mingw */
+make CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ config=release_x64
+
+/* some git things for changing the remote origin */
+git remote remove origin
+git remote -v
+git remote add origin <new_remote_url>
