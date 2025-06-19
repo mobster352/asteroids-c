@@ -15,4 +15,9 @@ typedef struct player{
     float rotation;
 } Player;
 
+typedef struct shot{
+    int id;
+    CircleShape shape;
+} Shot;
+
 #endif
