@@ -17,3 +17,22 @@ make CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ config=release_x64
 git remote remove origin
 git remote -v
 git remote add origin <new_remote_url>
+
+
+/* Instructions to make a new raylib game */
+1. Clone the repo: https://github.com/raylib-extras/raylib-quickstart.git
+2. Rename the raylib directory that is cloned to the name of the game
+3. cd into the game directory
+4. run git remote remove origin
+5. run git remote add origin <new_remote_url>
+6. git add / commit / push to the new repo
+
+/* Instructions to build a Linux game */
+1. In build/: ./premake5 gmake2 --it may download some library files
+2. In root: make
+3. Game is in bin/Debug/game --this is a linux file type
+
+*/ Instructions to build a Windows game */
+1. In build/: ./premake5 gmake2 --os=windows
+2. In root: make CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ config=release_x64
+3. Game is in bin/Release/game.exe
