@@ -40,7 +40,7 @@ int main (){
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
 	// Load a texture from the resources directory
-	// Texture wabbit = LoadTexture("wabbit_alpha.png");
+	Texture background = LoadTexture("space3.jpg");
 	SetTargetFPS(60);
 
 	Player player;
@@ -56,8 +56,14 @@ int main (){
 		BeginDrawing();
 		// Setup the back buffer for drawing (clear color and depth buffers)
 		ClearBackground(BLACK);
+
+		DrawTexture(background, 0, 0, WHITE);
 		// draw FPS
-		drawTextWithInt("FPS: ", GetFPS(), 10, 10, 20, WHITE);
+		drawTextWithInt("FPS: ", GetFPS(), 1180, 10, 20, WHITE);
+
+		// draw HUD
+		drawTextWithInt("Score: ", 0, 10, 10, 20, WHITE);
+
 		//draw controller
 		if(IsGamepadAvailable(0)){
 			drawTextWithString("Controller: ", GetGamepadName(0), 10, 30, 20, WHITE);
@@ -72,7 +78,7 @@ int main (){
 	}
 	// cleanup
 	// unload our texture so it can be cleaned up
-	// UnloadTexture(wabbit);
+	UnloadTexture(background);
 	// destroy the window and cleanup the OpenGL context
 	CloseWindow();
 	return 0;
