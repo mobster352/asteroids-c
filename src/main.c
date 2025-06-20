@@ -17,7 +17,7 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "stdlib.h"
 
 #include "custom_functions.h"
-#include "player.h"
+#include "circle_shape.h"
 
 void drawTextWithInt(char *text, int value, int posX, int posY, int fontSize, Color color){
 	const char *newText = concatIntToString(text, value);
@@ -64,6 +64,9 @@ int main (){
 		}
 		updatePlayer(&player);
 		drawPlayer(player);
+
+		//update shots
+		drawShotsArray(player.shots);
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
 	}

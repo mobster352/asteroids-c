@@ -1,4 +1,4 @@
-#include "player.h"
+#include "circle_shape.h"
 #include "raymath.h"
 #include "stdio.h"
 #include "stdlib.h"
@@ -10,12 +10,11 @@
 const int PLAYER_RADIUS = 20;
 const int PLAYER_TURN_SPEED = 5;
 const int PLAYER_SPEED = 10;
-const int PLAYER_SHOOT_SPEED = 10;
+const int PLAYER_SHOOT_SPEED = 25;
+const float PLAYER_SHOOT_COOLDOWN = 0.35f; // seconds
+const float SHOT_COOLDOWN = 1.0f;
 
 const int SHOT_RADIUS = 5;
-
-int shotId = 0;
-// Shot *shots;
 
 void createPlayer(Player *p){
 	CircleShape shape = {
@@ -23,7 +22,10 @@ void createPlayer(Player *p){
 	};
 
 	p->shape = shape;
-	p->rotation = 0.0;
+	p->rotation = 0.0f;
+    p->shots = createShotsArray(1);
+    p->shotCount = 0;
+    p->timer = 0.0f;
 }
 
 Vector2* getTriangle(Player p){
@@ -63,17 +65,19 @@ void movePlayer(Player *player, float dt){
     }
 }
 
+
 void shoot(Player *player, int dt){
     float angle = player->rotation;
     float radius = player->shape.radius;
     Vector2 forward = Vector2Rotate((Vector2){0, -radius}, angle);
     CircleShape shape = {
-		{player->shape.position.x, player->shape.position.y}, SHOT_RADIUS, WHITE, Vector2Add(player->shape.position, Vector2Scale(forward, PLAYER_SHOOT_SPEED))
+		{player->shape.position.x, player->shape.position.y}, SHOT_RADIUS, WHITE, Vector2Scale(forward, PLAYER_SHOOT_SPEED)
 	};
-    Shot shot = {shotId, shape};
-
+    Shot shot = {player->shotCount, shape, SHOT_COOLDOWN};
+    insertShot(player->shots, shot);
+    player->timer = PLAYER_SHOOT_COOLDOWN;
     // DrawCircle(shot.shape.position.x, shot.shape.position.y, shot.shape.radius, WHITE);
-    shotId++;
+    player->shotCount++;
 }
 
 int getGamepadEvents(int gamepad, Player *player){
@@ -116,6 +120,20 @@ int getGamepadEvents(int gamepad, Player *player){
 }
 
 void updatePlayer(Player *player){
+    if(player->timer > 0){
+        player->timer -= GetFrameTime();
+    }
+    for(int i=0; i < player->shots->size; i++){
+        if(player->shots->data[i].timer > 0){
+            player->shots->data[i].timer -= GetFrameTime();
+        }
+        else if(player->shots->data[i].timer <= 0){
+            //remove shot
+            popShot(player->shots);
+        }
+    }
+    
+    
     int pressed = false;
     if(IsGamepadAvailable(0)){
         pressed = getGamepadEvents(0, player);
@@ -133,9 +151,10 @@ void updatePlayer(Player *player){
         if(IsKeyDown(KEY_D)){
             rotatePlayer(player, GetFrameTime());
         }
-        if(IsKeyDown(KEY_SPACE)){
+        if(IsKeyDown(KEY_SPACE) && player->timer <= 0){
             //shoot
             shoot(player, GetFrameTime());
+            // printShotsArray(player->shots);
         }
     }
 }
