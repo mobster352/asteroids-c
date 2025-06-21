@@ -1,12 +1,3 @@
-/*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
-
-by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
-
-*/
-
 #include "raylib.h"
 #include "raymath.h"
 
@@ -80,27 +71,28 @@ bool DrawCenteredButton(const char *text, int centerX, int centerY, int width, i
     return CheckCollisionPointRec(GetMousePosition(), rect) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 }
 
-void initGame(Player *p){
+void initGame(Player *p, AsteroidField *f){
 	createPlayer(p);
+	createAsteroidField(f);
 }
 
-void leaveGame(Player *p){
+void leaveGame(Player *p, AsteroidField *f){
 	p = NULL; //set ptr to NULL to free it
+	f = NULL;
 }
 
-void mainMenu(GameState *state, bool *run, Player *player){
+void mainMenu(GameState *state, bool *run, Player *player, AsteroidField *field){
 	DrawText("Asteroids", GetScreenWidth()/2 - MeasureText("Asteroids", 75)/2, 150, 75, WHITE);
 	int n = 1; // number of additional buttons // n = 0 for only 1 button
     if (DrawCenteredButton("New Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
         *state = GAME_STATE_PLAYING;
-		initGame(player);
+		initGame(player, field);
     }
 	else if (DrawCenteredButton("Quit Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2 + n*(BUTTON_HEIGHT + BUTTON_SPACING), BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
         *run = false;
     }
 }
 
-// Example usage in pauseMenu:
 void pauseMenu(GameState *state){
     DrawText("Paused", GetScreenWidth()/2 - MeasureText("Paused", 75)/2, 150, 75, WHITE);
     if (DrawCenteredButton("Leave Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
@@ -124,6 +116,7 @@ int main (){
 	SetWindowFocused();
 
 	Player player;
+	AsteroidField asteroidField;
 	GameState state = GAME_STATE_MENU;
 
 	bool run = true;
@@ -162,13 +155,16 @@ int main (){
 			pauseMenu(&state);
 			// leave game
 			if(state == GAME_STATE_MENU){
-				leaveGame(&player);
+				leaveGame(&player, &asteroidField);
 			}
 		}	
 		else if(state == GAME_STATE_MENU){
-			mainMenu(&state, &run, &player);
+			mainMenu(&state, &run, &player, &asteroidField);
 		}
 		else if(state == GAME_STATE_PLAYING){
+			updateAsteroidField(&asteroidField);
+			drawAsteroidsArray(asteroidField.asteroids);
+
 			updatePlayer(&player);
 			drawPlayer(player);
 

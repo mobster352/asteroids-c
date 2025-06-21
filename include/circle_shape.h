@@ -31,6 +31,29 @@ typedef struct player{
     float timer;
 } Player;
 
+typedef struct asteroid{
+    CircleShape shape;
+    int id;
+} Asteroid;
+
+typedef struct edge{
+    Vector2 velocity;
+    Vector2 position;
+} Edge;
+
+typedef struct asteroidsArray{
+    Asteroid* data;
+    int capacity;
+    int size;
+} AsteroidsArray;
+
+typedef struct asteroidField{
+    float spawnTimer;
+    Edge* edges;
+    AsteroidsArray* asteroids;
+    int asteroidId;
+} AsteroidField;
+
 void createPlayer(Player *p);
 void drawPlayer(Player player);
 void updatePlayer(Player *player);
@@ -45,5 +68,21 @@ int findShotFromArray(ShotsArray* arr, int shotId);
 void printShotsArray(ShotsArray* arr);
 int popShot(ShotsArray* arr);
 void drawShotsArray(ShotsArray* arr);
+
+AsteroidsArray* createAsteroidsArray(int capacity);
+void resizeAsteroidsArray(AsteroidsArray* arr, int newCapacity);
+void insertAsteroid(AsteroidsArray* arr, Asteroid element);
+int removeAsteroidById(AsteroidsArray* arr, int AsteroidId);
+int popAsteroid(AsteroidsArray* arr);
+Asteroid getAsteroidFromArray(AsteroidsArray* arr, int AsteroidId);
+int findAsteroidFromArray(AsteroidsArray* arr, int AsteroidId);
+void freeAsteroidsArray(AsteroidsArray* arr);
+void printAsteroidsArray(AsteroidsArray* arr);
+void drawAsteroidsArray(AsteroidsArray* arr);
+
+Asteroid createAsteroid(Vector2 position, Vector2 velocity, int radius, int id);
+
+void createAsteroidField(AsteroidField *field);
+void updateAsteroidField(AsteroidField *field);
 
 #endif
