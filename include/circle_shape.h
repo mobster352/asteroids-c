@@ -81,6 +81,7 @@ void printAsteroidsArray(AsteroidsArray* arr);
 void drawAsteroidsArray(AsteroidsArray* arr);
 
 Asteroid createAsteroid(Vector2 position, Vector2 velocity, int radius, int id, Color color);
+void splitAsteroid(AsteroidField *field, int id);
 
 void createAsteroidField(AsteroidField *field);
 void updateAsteroidField(AsteroidField *field);

@@ -3,12 +3,13 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "time.h"
+#include "custom_functions.h"
+#include "constants.h"
 
-const int ASTEROID_MIN_RADIUS = 20;
 const int ASTEROID_KINDS = 3;
 const float ASTEROID_SPAWN_RATE = 0.8f;  // seconds
 const int ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS;
-const float ASTEROID_ROTATE_RADS = 0.523599f;
+const float ASTEROID_ROTATE_RADS = 0.523599f; //30 degrees
 
 Vector2 getEdge(float scaler, Vector2 (*getVector2)(float)){
     return getVector2(scaler);
@@ -53,18 +54,13 @@ void spawn(AsteroidField *field, int radius, Edge edge){
     field->asteroidId++;
 }
 
-// Function to generate a random float within a specified range
-float generate_random_float(float min, float max) {
-    float scale = (float)rand() / RAND_MAX;
-    return min + scale * (max - min);
-}
-
 void updateAsteroidField(AsteroidField *field){
     field->spawnTimer += GetFrameTime();
     if(field->spawnTimer > ASTEROID_SPAWN_RATE){
         field->spawnTimer = 0;
         if(field->asteroids->size < 40){
             int random_index = rand() % 4;
+            // int random_index = 3;
             Edge edge = field->edges[random_index];
 
             int speed = (rand() % (100 - 40 + 1)) + 40;

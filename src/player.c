@@ -3,21 +3,12 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "custom_functions.h"
+#include "constants.h"
 
 #define XBOX_ALIAS_1 "xbox"
 #define XBOX_ALIAS_2 "x-box"
 #define PS_ALIAS     "playstation"
 
-const int PLAYER_START_POS_X = 640;
-const int PLAYER_START_POS_Y = 400;
-const int PLAYER_RADIUS = 20;
-const int PLAYER_TURN_SPEED = 5;
-const int PLAYER_SPEED = 10;
-const int PLAYER_SHOOT_SPEED = 25;
-const float PLAYER_SHOOT_COOLDOWN = 0.35f; // seconds
-const float SHOT_COOLDOWN = 1.0f;
-
-const int SHOT_RADIUS = 5;
 
 void createPlayer(Player *p){
 	CircleShape shape = {
@@ -25,7 +16,7 @@ void createPlayer(Player *p){
 	};
 
 	p->shape = shape;
-	p->rotation = 0.0f;
+    p->rotation = 3.14159f; //180 degrees
     p->shots = createShotsArray(1);
     p->shotCount = 0;
     p->timer = 0.0f;
@@ -49,6 +40,7 @@ Vector2* getTriangle(Player p){
 void drawPlayer(Player player){
     Vector2 *vertices = getTriangle(player);
     DrawTriangle(vertices[0], vertices[1], vertices[2], WHITE);
+    // DrawCircleLines(player.shape.position.x, player.shape.position.y, player.shape.radius, GREEN);
     free(vertices);
 }
 

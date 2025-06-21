@@ -9,18 +9,14 @@
 
 #include "custom_functions.h"
 #include "circle_shape.h"
+#include "constants.h"
 
 typedef enum {
 	GAME_STATE_MENU,
 	GAME_STATE_PLAYING,
-	GAME_STATE_PAUSED
+	GAME_STATE_PAUSED,
+	GAME_STATE_GAME_OVER
 } GameState;
-
-const int BUTTON_WIDTH = 250;
-const int BUTTON_HEIGHT = 60;
-const int BUTTON_MARGIN = 10;
-const int BUTTON_Y = 400;
-const int BUTTON_SPACING = 30;      // Space between buttons
 
 void drawTextWithInt(char *text, int value, int posX, int posY, int fontSize, Color color){
 	void *newText = concatIntToString(text, value);
@@ -71,22 +67,25 @@ bool DrawCenteredButton(const char *text, int centerX, int centerY, int width, i
     return CheckCollisionPointRec(GetMousePosition(), rect) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 }
 
-void initGame(Player *p, AsteroidField *f){
+void initGame(Player *p, AsteroidField *f, int *score, int *highScore){
 	createPlayer(p);
 	createAsteroidField(f);
+	*score = 0;
 }
 
 void leaveGame(Player *p, AsteroidField *f){
+	freeShotsArray(p->shots);
 	p = NULL; //set ptr to NULL to free it
+	freeAsteroidsArray(f->asteroids);
 	f = NULL;
 }
 
-void mainMenu(GameState *state, bool *run, Player *player, AsteroidField *field){
+void mainMenu(GameState *state, bool *run, Player *player, AsteroidField *field, int *score, int *highScore){
 	DrawText("Asteroids", GetScreenWidth()/2 - MeasureText("Asteroids", 75)/2, 150, 75, WHITE);
 	int n = 1; // number of additional buttons // n = 0 for only 1 button
     if (DrawCenteredButton("New Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
         *state = GAME_STATE_PLAYING;
-		initGame(player, field);
+		initGame(player, field, score, highScore);
     }
 	else if (DrawCenteredButton("Quit Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2 + n*(BUTTON_HEIGHT + BUTTON_SPACING), BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
         *run = false;
@@ -97,6 +96,23 @@ void pauseMenu(GameState *state){
     DrawText("Paused", GetScreenWidth()/2 - MeasureText("Paused", 75)/2, 150, 75, WHITE);
     if (DrawCenteredButton("Leave Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
         *state = GAME_STATE_MENU;
+    }
+}
+
+void gameOver(GameState *state, int score, int *highScore){
+	DrawText("Game Over!", GetScreenWidth()/2 - MeasureText("Game Over!", 75)/2, 150, 75, WHITE);
+	if(score > *highScore){
+		char *highScoreText = concatIntToString("New High Score: ", score);
+		DrawText(highScoreText, GetScreenWidth()/2 - MeasureText(highScoreText, 50)/2, 250, 50, WHITE);
+		free(highScoreText);
+	}
+	char *scoreText = concatIntToString("Final Score: ", score);
+	DrawText(scoreText, GetScreenWidth()/2 - MeasureText(scoreText, 35)/2, 350, 35, WHITE);
+	free(scoreText);
+    if (DrawCenteredButton("Leave Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
+        *state = GAME_STATE_MENU;
+		if(score > *highScore)
+			*highScore = score;
     }
 }
 
@@ -118,6 +134,8 @@ int main (){
 	Player player;
 	AsteroidField asteroidField;
 	GameState state = GAME_STATE_MENU;
+	int score;
+	int highScore = 0;
 
 	bool run = true;
 	// game loop
@@ -139,17 +157,14 @@ int main (){
 
 		DrawTexture(background, 0, 0, WHITE);
 		// draw FPS
-		drawTextWithInt("FPS: ", GetFPS(), 1180, 10, 20, WHITE);
-
-		// draw HUD
-		drawTextWithInt("Score: ", 0, 10, 10, 20, WHITE);
+		// drawTextWithInt("FPS: ", GetFPS(), 1180, 10, 20, WHITE);
 
 		//draw controller
-		if(IsGamepadAvailable(0)){
-			drawTextWithString("Controller: ", GetGamepadName(0), 10, 30, 20, WHITE);
-		}
+		// if(IsGamepadAvailable(0)){
+		// 	drawTextWithString("Controller: ", GetGamepadName(0), 10, 30, 20, WHITE);
+		// }
 
-		drawTextWithVector2("Pos: ", GetMousePosition(), 1100, 780, 20, WHITE);
+		// drawTextWithVector2("Pos: ", GetMousePosition(), 1100, 780, 20, WHITE);
 
 		if(state == GAME_STATE_PAUSED){
 			pauseMenu(&state);
@@ -159,9 +174,13 @@ int main (){
 			}
 		}	
 		else if(state == GAME_STATE_MENU){
-			mainMenu(&state, &run, &player, &asteroidField);
+			mainMenu(&state, &run, &player, &asteroidField, &score, &highScore);
 		}
 		else if(state == GAME_STATE_PLAYING){
+			// draw HUD
+			drawTextWithInt("Score: ", score, 10, 10, 20, WHITE);
+			drawTextWithInt("High Score: ", highScore, 150, 10, 20, WHITE);
+
 			updateAsteroidField(&asteroidField);
 			drawAsteroidsArray(asteroidField.asteroids);
 
@@ -171,10 +190,31 @@ int main (){
 			//update shots
 			drawShotsArray(player.shots);
 
-			//shot collision with asteroid
-			
+			for(int i=0; i<asteroidField.asteroids->size; i++){
+				//check collision with player
+				if(CheckCollisionCircles(
+					asteroidField.asteroids->data[i].shape.position, asteroidField.asteroids->data[i].shape.radius,
+					player.shape.position, player.shape.radius
+				)){
+					state = GAME_STATE_GAME_OVER;
+					break;
+				}
 
-			//player collision with asteroid
+				//check collision with shots
+				for(int j=0; j<player.shots->size; j++){
+					if(CheckCollisionCircles(
+						asteroidField.asteroids->data[i].shape.position, asteroidField.asteroids->data[i].shape.radius,
+						player.shots->data[j].shape.position, player.shots->data[j].shape.radius
+					)){
+						removeShotById(player.shots, player.shots->data[j].id);
+						splitAsteroid(&asteroidField, i);
+						score += 10;
+					}
+				}
+			}
+		}
+		else if(state == GAME_STATE_GAME_OVER){
+			gameOver(&state, score, &highScore);
 		}
 		
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)

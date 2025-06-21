@@ -63,10 +63,15 @@ Vector2 checkOffScreen(Vector2 position, int unitsOffScreen){
     if(position.x >= GetScreenWidth() + unitsOffScreen)
         position.x = -unitsOffScreen;
     else if(position.x <= -unitsOffScreen)
-        position.x = GetScreenWidth();
+        position.x = GetScreenWidth() + unitsOffScreen;
     else if(position.y <= -unitsOffScreen)
-        position.y = GetScreenHeight();
+        position.y = GetScreenHeight() + unitsOffScreen;
     else if(position.y >= GetScreenHeight() + unitsOffScreen)
         position.y = -unitsOffScreen;
     return position;
+}
+
+float generate_random_float(float min, float max) {
+    float scale = (float)rand() / RAND_MAX;
+    return min + scale * (max - min);
 }

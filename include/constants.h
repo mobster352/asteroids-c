@@ -1,0 +1,25 @@
+// constants.h
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+#define ASTEROID_MIN_RADIUS 20
+#define ASTEROID_ROTATE_RADS_MIN 0.349066f //20 degrees
+#define ASTEROID_ROTATE_RADS_MAX 0.872665f //50 degrees
+
+#define PLAYER_START_POS_X 640
+#define PLAYER_START_POS_Y 400
+#define PLAYER_RADIUS 20
+#define PLAYER_TURN_SPEED 5
+#define PLAYER_SPEED 10
+#define PLAYER_SHOOT_SPEED 25
+#define PLAYER_SHOOT_COOLDOWN 0.35f // seconds
+#define SHOT_COOLDOWN 1.0f
+#define SHOT_RADIUS 5
+
+#define BUTTON_WIDTH 250
+#define BUTTON_HEIGHT 60
+#define BUTTON_MARGIN 10
+#define BUTTON_Y 400
+#define BUTTON_SPACING 30      // Space between buttons
+
+#endif // CONSTANTS_H
