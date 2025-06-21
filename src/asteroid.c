@@ -3,10 +3,10 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-Asteroid createAsteroid(Vector2 position, Vector2 velocity, int radius, int id){
+Asteroid createAsteroid(Vector2 position, Vector2 velocity, int radius, int id, Color color){
 	Asteroid a;
     CircleShape shape = {
-		position, radius, WHITE, velocity
+		position, radius, color, velocity
 	};
 	a.shape = shape;
 	a.id = id;

@@ -58,3 +58,15 @@ void* concatStringToString(const char *string, const char *value){
 	strcat(result, value);
 	return result;
 }
+
+Vector2 checkOffScreen(Vector2 position, int unitsOffScreen){
+    if(position.x >= GetScreenWidth() + unitsOffScreen)
+        position.x = -unitsOffScreen;
+    else if(position.x <= -unitsOffScreen)
+        position.x = GetScreenWidth();
+    else if(position.y <= -unitsOffScreen)
+        position.y = GetScreenHeight();
+    else if(position.y >= GetScreenHeight() + unitsOffScreen)
+        position.y = -unitsOffScreen;
+    return position;
+}

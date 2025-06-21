@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "custom_functions.h"
 
 #define XBOX_ALIAS_1 "xbox"
 #define XBOX_ALIAS_2 "x-box"
@@ -65,6 +66,7 @@ void movePlayer(Player *player, float dt){
     else{
         player->shape.position = Vector2Add(player->shape.position, Vector2Scale(forward, PLAYER_SPEED/1.5 * dt));
     }
+    player->shape.position = checkOffScreen(player->shape.position, player->shape.radius);
 }
 
 

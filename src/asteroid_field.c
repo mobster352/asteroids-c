@@ -6,9 +6,9 @@
 
 const int ASTEROID_MIN_RADIUS = 20;
 const int ASTEROID_KINDS = 3;
-const int ASTEROID_SPAWN_RATE = 0.8;  // seconds
+const float ASTEROID_SPAWN_RATE = 0.8f;  // seconds
 const int ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS;
-const float ASTEROID_ROTATE_RADS = 0.523599;
+const float ASTEROID_ROTATE_RADS = 0.523599f;
 
 Vector2 getEdge(float scaler, Vector2 (*getVector2)(float)){
     return getVector2(scaler);
@@ -40,10 +40,15 @@ void createAsteroidField(AsteroidField *field){
 	field->asteroidId = 0;
     field->spawnTimer = 0;
     field->asteroids = createAsteroidsArray(1);
+
+    srand(time(NULL));
 }
 
 void spawn(AsteroidField *field, int radius, Edge edge){
-    Asteroid a = createAsteroid(edge.position, edge.velocity, radius, field->asteroidId);
+    Color colorOptions[] = {WHITE};
+    int numColorOptions = sizeof(colorOptions) / sizeof(colorOptions[0]);
+    int colorIndex = rand() % numColorOptions;
+    Asteroid a = createAsteroid(edge.position, edge.velocity, radius, field->asteroidId, colorOptions[colorIndex]);
     insertAsteroid(field->asteroids, a);
     field->asteroidId++;
 }
@@ -59,7 +64,6 @@ void updateAsteroidField(AsteroidField *field){
     if(field->spawnTimer > ASTEROID_SPAWN_RATE){
         field->spawnTimer = 0;
         if(field->asteroids->size < 40){
-            srand(time(NULL));
             int random_index = rand() % 4;
             Edge edge = field->edges[random_index];
 

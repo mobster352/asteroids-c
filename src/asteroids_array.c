@@ -1,6 +1,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "circle_shape.h"
+#include "custom_functions.h"
 
 AsteroidsArray* createAsteroidsArray(int capacity){
     AsteroidsArray* arr = (AsteroidsArray*)malloc(sizeof(AsteroidsArray));
@@ -102,7 +103,8 @@ void printAsteroidsArray(AsteroidsArray* arr){
 void drawAsteroidsArray(AsteroidsArray* arr){
     for(int i=0; i < arr->size; i++){
         arr->data[i].shape.position = Vector2Add(arr->data[i].shape.position, Vector2Scale(arr->data[i].shape.velocity, GetFrameTime()));
-        DrawCircle(arr->data[i].shape.position.x, arr->data[i].shape.position.y, arr->data[i].shape.radius, arr->data[i].shape.color);
-        printf("Asteroid: %d: Pos: (%.2f, %.2f), Vel: (%.2f, %.2f)\n", arr->data[i].id, arr->data[i].shape.position.x, arr->data[i].shape.position.y, arr->data[i].shape.velocity.x, arr->data[i].shape.velocity.y);
+        arr->data[i].shape.position = checkOffScreen(arr->data[i].shape.position, arr->data->shape.radius*2);
+        DrawCircleLines(arr->data[i].shape.position.x, arr->data[i].shape.position.y, arr->data[i].shape.radius, arr->data[i].shape.color);
+        // printf("Asteroid: %d: Pos: (%.2f, %.2f), Vel: (%.2f, %.2f)\n", arr->data[i].id, arr->data[i].shape.position.x, arr->data[i].shape.position.y, arr->data[i].shape.velocity.x, arr->data[i].shape.velocity.y);
     }
 }

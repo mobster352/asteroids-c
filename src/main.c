@@ -170,6 +170,11 @@ int main (){
 
 			//update shots
 			drawShotsArray(player.shots);
+
+			//shot collision with asteroid
+			
+
+			//player collision with asteroid
 		}
 		
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
