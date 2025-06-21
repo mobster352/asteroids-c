@@ -7,6 +7,8 @@
 #define XBOX_ALIAS_2 "x-box"
 #define PS_ALIAS     "playstation"
 
+const int PLAYER_START_POS_X = 640;
+const int PLAYER_START_POS_Y = 400;
 const int PLAYER_RADIUS = 20;
 const int PLAYER_TURN_SPEED = 5;
 const int PLAYER_SPEED = 10;
@@ -18,7 +20,7 @@ const int SHOT_RADIUS = 5;
 
 void createPlayer(Player *p){
 	CircleShape shape = {
-		{500, 500}, PLAYER_RADIUS, WHITE, {0, 0}
+		{PLAYER_START_POS_X, PLAYER_START_POS_Y}, PLAYER_RADIUS, WHITE, {0, 0}
 	};
 
 	p->shape = shape;
@@ -114,6 +116,10 @@ int getGamepadEvents(int gamepad, Player *player){
     }
     if(IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT) || leftStickX > leftStickDeadzoneX){
         rotatePlayer(player, GetFrameTime());
+        pressed = true;
+    }
+    if(IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_2) && player->timer <= 0){
+        shoot(player, GetFrameTime());
         pressed = true;
     }
     return pressed;

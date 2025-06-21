@@ -19,14 +19,93 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "custom_functions.h"
 #include "circle_shape.h"
 
+typedef enum {
+	GAME_STATE_MENU,
+	GAME_STATE_PLAYING,
+	GAME_STATE_PAUSED
+} GameState;
+
+const int BUTTON_WIDTH = 250;
+const int BUTTON_HEIGHT = 60;
+const int BUTTON_MARGIN = 10;
+const int BUTTON_Y = 400;
+const int BUTTON_SPACING = 30;      // Space between buttons
+
 void drawTextWithInt(char *text, int value, int posX, int posY, int fontSize, Color color){
-	const char *newText = concatIntToString(text, value);
+	void *newText = concatIntToString(text, value);
 	DrawText(newText,posX,posY,fontSize,color);
+	free(newText);
+}
+
+void drawTextWithVector2(char *text, Vector2 value, int posX, int posY, int fontSize, Color color){
+	void *newText = concatVector2ToString(text, value);
+	DrawText(newText,posX,posY,fontSize,color);
+	free(newText);
 }
 
 void drawTextWithString(char *text, const char *value, int posX, int posY, int fontSize, Color color){
-	const char *newText = concatStringToString(text, value);
+	void *newText = concatStringToString(text, value);
 	DrawText(newText,posX,posY,fontSize,color);
+	free(newText);
+}
+
+// Helper function to draw a centered button with text and margin
+bool DrawCenteredButton(const char *text, int centerX, int centerY, int width, int height, int margin, Color textColor) {	
+	// Rectangle centered at (centerX, centerY)
+    Rectangle rect = {
+        centerX - width / 2,
+        centerY - height / 2,
+        width,
+        height
+    };
+
+	Color idleColor = GRAY;
+    Color hoverColor = BLUE;
+	Color btnColor = CheckCollisionPointRec(GetMousePosition(), rect) ? hoverColor : idleColor;
+    // Draw rectangle
+    DrawRectangleRec(rect, btnColor);
+
+    // Measure text
+    int textWidth = MeasureText(text, height - 2 * margin);
+    int textHeight = height - 2 * margin;
+
+    // Calculate text position (centered inside rectangle with margin)
+    int textX = centerX - textWidth / 2;
+    int textY = centerY - textHeight / 2;
+
+    // Draw text
+    DrawText(text, textX, textY, textHeight, textColor);
+
+    // Check for click
+    return CheckCollisionPointRec(GetMousePosition(), rect) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+}
+
+void initGame(Player *p){
+	createPlayer(p);
+}
+
+void leaveGame(Player *p){
+	p = NULL; //set ptr to NULL to free it
+}
+
+void mainMenu(GameState *state, bool *run, Player *player){
+	DrawText("Asteroids", GetScreenWidth()/2 - MeasureText("Asteroids", 75)/2, 150, 75, WHITE);
+	int n = 1; // number of additional buttons // n = 0 for only 1 button
+    if (DrawCenteredButton("New Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
+        *state = GAME_STATE_PLAYING;
+		initGame(player);
+    }
+	else if (DrawCenteredButton("Quit Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2 + n*(BUTTON_HEIGHT + BUTTON_SPACING), BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
+        *run = false;
+    }
+}
+
+// Example usage in pauseMenu:
+void pauseMenu(GameState *state){
+    DrawText("Paused", GetScreenWidth()/2 - MeasureText("Paused", 75)/2, 150, 75, WHITE);
+    if (DrawCenteredButton("Leave Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
+        *state = GAME_STATE_MENU;
+    }
 }
 
 int main (){
@@ -42,9 +121,10 @@ int main (){
 	// Load a texture from the resources directory
 	Texture background = LoadTexture("space3.jpg");
 	SetTargetFPS(60);
+	SetWindowFocused();
 
 	Player player;
-	createPlayer(&player);
+	GameState state = GAME_STATE_MENU;
 
 	bool run = true;
 	// game loop
@@ -52,6 +132,13 @@ int main (){
 		if(IsKeyPressed(KEY_F4)){
 			run = false;
 		}
+		if(IsKeyPressed(KEY_ESCAPE) && (state == GAME_STATE_PLAYING || state == GAME_STATE_PAUSED)){
+			if(state == GAME_STATE_PLAYING)
+				state = GAME_STATE_PAUSED;
+			else
+				state = GAME_STATE_PLAYING;
+		}
+
 		// drawing
 		BeginDrawing();
 		// Setup the back buffer for drawing (clear color and depth buffers)
@@ -68,11 +155,27 @@ int main (){
 		if(IsGamepadAvailable(0)){
 			drawTextWithString("Controller: ", GetGamepadName(0), 10, 30, 20, WHITE);
 		}
-		updatePlayer(&player);
-		drawPlayer(player);
 
-		//update shots
-		drawShotsArray(player.shots);
+		drawTextWithVector2("Pos: ", GetMousePosition(), 1100, 780, 20, WHITE);
+
+		if(state == GAME_STATE_PAUSED){
+			pauseMenu(&state);
+			// leave game
+			if(state == GAME_STATE_MENU){
+				leaveGame(&player);
+			}
+		}	
+		else if(state == GAME_STATE_MENU){
+			mainMenu(&state, &run, &player);
+		}
+		else if(state == GAME_STATE_PLAYING){
+			updatePlayer(&player);
+			drawPlayer(player);
+
+			//update shots
+			drawShotsArray(player.shots);
+		}
+		
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
 	}
