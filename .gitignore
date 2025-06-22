@@ -401,7 +401,4 @@ raylib-master
 Makefile
 /*.sln
 
-.vscode
-build/
-build-*
 test/
