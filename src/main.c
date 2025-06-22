@@ -67,10 +67,12 @@ bool DrawCenteredButton(const char *text, int centerX, int centerY, int width, i
     return CheckCollisionPointRec(GetMousePosition(), rect) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 }
 
-void initGame(Player *p, AsteroidField *f, int *score, int *highScore){
+void initGame(Player *p, AsteroidField *f, int *score, int *highScore, bool *hasShield, int *shieldCounter){
 	createPlayer(p);
 	createAsteroidField(f);
 	*score = 0;
+	*hasShield = false;
+	*shieldCounter = 0;
 }
 
 void leaveGame(Player *p, AsteroidField *f){
@@ -80,12 +82,12 @@ void leaveGame(Player *p, AsteroidField *f){
 	f = NULL;
 }
 
-void mainMenu(GameState *state, bool *run, Player *player, AsteroidField *field, int *score, int *highScore){
+void mainMenu(GameState *state, bool *run, Player *player, AsteroidField *field, int *score, int *highScore, bool *hasShield, int *shieldCounter){
 	DrawText("Asteroids", GetScreenWidth()/2 - MeasureText("Asteroids", 75)/2, 150, 75, WHITE);
 	int n = 1; // number of additional buttons // n = 0 for only 1 button
     if (DrawCenteredButton("New Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
         *state = GAME_STATE_PLAYING;
-		initGame(player, field, score, highScore);
+		initGame(player, field, score, highScore, hasShield, shieldCounter);
     }
 	else if (DrawCenteredButton("Quit Game", GetScreenWidth()/2, BUTTON_Y + BUTTON_HEIGHT/2 + n*(BUTTON_HEIGHT + BUTTON_SPACING), BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, WHITE)) {
         *run = false;
@@ -136,6 +138,9 @@ int main (){
 	GameState state = GAME_STATE_MENU;
 	int score;
 	int highScore = 0;
+	bool hasShield;
+	int shieldCounter = 0;
+	float iFrames = 0.0f;
 
 	bool run = true;
 	// game loop
@@ -174,7 +179,7 @@ int main (){
 			}
 		}	
 		else if(state == GAME_STATE_MENU){
-			mainMenu(&state, &run, &player, &asteroidField, &score, &highScore);
+			mainMenu(&state, &run, &player, &asteroidField, &score, &highScore, &hasShield, &shieldCounter);
 		}
 		else if(state == GAME_STATE_PLAYING){
 			// draw HUD
@@ -185,19 +190,27 @@ int main (){
 			drawAsteroidsArray(asteroidField.asteroids);
 
 			updatePlayer(&player);
-			drawPlayer(player);
+			drawPlayer(player, hasShield, iFrames);
 
 			//update shots
 			drawShotsArray(player.shots);
 
+			if(iFrames > 0.0f)
+				iFrames -= GetFrameTime();
+
 			for(int i=0; i<asteroidField.asteroids->size; i++){
 				//check collision with player
-				if(CheckCollisionCircles(
+				bool hitPlayer = CheckCollisionCircles(
 					asteroidField.asteroids->data[i].shape.position, asteroidField.asteroids->data[i].shape.radius,
 					player.shape.position, player.shape.radius
-				)){
+				);
+				if(hitPlayer && !hasShield && iFrames <= 0.0f){
 					state = GAME_STATE_GAME_OVER;
 					break;
+				} else if(hitPlayer && iFrames <= 0.0f){
+					splitAsteroid(&asteroidField, i);
+					hasShield = false;
+					iFrames = I_FRAMES_COUNTER;
 				}
 
 				//check collision with shots
@@ -209,6 +222,11 @@ int main (){
 						removeShotById(player.shots, player.shots->data[j].id);
 						splitAsteroid(&asteroidField, i);
 						score += 10;
+						shieldCounter++;
+						if(shieldCounter >= 10){
+							shieldCounter = 0;
+							hasShield = true;
+						}
 					}
 				}
 			}

@@ -37,10 +37,21 @@ Vector2* getTriangle(Player p){
     return vertices;
 }
 
-void drawPlayer(Player player){
+void drawPlayer(Player player, bool hasShield, float iFrames){
     Vector2 *vertices = getTriangle(player);
-    DrawTriangle(vertices[0], vertices[1], vertices[2], WHITE);
-    // DrawCircleLines(player.shape.position.x, player.shape.position.y, player.shape.radius, GREEN);
+
+    // Blinking effect when iFrames > 0
+    bool visible = true;
+    if (iFrames > 0.0f) {
+        // Blink: visible for 0.1s, invisible for 0.1s (adjust as needed)
+        int blinkPeriod = 10; // frames (assuming 60 FPS, this is ~0.16s)
+        visible = ((int)(iFrames * 60) % (2 * blinkPeriod)) < blinkPeriod;
+    }
+    if(visible){
+        DrawTriangle(vertices[0], vertices[1], vertices[2], WHITE);
+        if(hasShield)
+            DrawCircleLines(player.shape.position.x, player.shape.position.y, player.shape.radius, GREEN);
+    }
     free(vertices);
 }
 

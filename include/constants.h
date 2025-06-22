@@ -22,4 +22,6 @@
 #define BUTTON_Y 400
 #define BUTTON_SPACING 30      // Space between buttons
 
+#define I_FRAMES_COUNTER 2.0f
+
 #endif // CONSTANTS_H

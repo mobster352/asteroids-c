@@ -55,7 +55,7 @@ typedef struct asteroidField{
 } AsteroidField;
 
 void createPlayer(Player *p);
-void drawPlayer(Player player);
+void drawPlayer(Player player, bool hasShield, float iFrames);
 void updatePlayer(Player *player);
 
 ShotsArray* createShotsArray(int capacity);
